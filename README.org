@@ -1,4 +1,2 @@
 * Simple Desktop Shell Scripts
 
-These shell scripts provide simple altervatives to some of the features of
-a desktop environment.
