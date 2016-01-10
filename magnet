@@ -1,0 +1,20 @@
+#!/bin/sh
+
+## Handle magnet URLs.
+
+## This script takes a magnet URL as its sole argument and from it, creates a
+## torrent file in rtorrent's watch folder.  If tmux isn't running, create a new
+## tmux session.  If rtorrent isn't running, create a new tmux window with
+## rtorrent running in it.  If urxvt isn't running, run it and attach to the
+## tmux session.
+
+watchfolder="$HOME/.rtorrent/"
+
+hash=$(printf '%s\n' "$1" | sed 's/xt=urn:btih://')
+[ "$hash" ] || exit;
+cd "${watchfolder}" || exit;
+printf '%s\n' "d10:magnet-uri${#1}:${1}e" > "meta-${hash}.torrent"
+
+pgrep -q tmux     || tmux new -d
+pgrep -q rtorrent || tmux new-window rtorrent
+pgrep -q urxvt    || urxvt -e sh -c "tmux att -d"&

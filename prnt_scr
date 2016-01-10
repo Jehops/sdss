@@ -1,0 +1,3 @@
+#!/usr/bin/env sh
+
+/usr/local/bin/scrot -d1 ~/`date +%Y%m%d%H%M`.png

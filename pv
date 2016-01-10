@@ -1,0 +1,14 @@
+#!/bin/sh
+
+## Ensure that a certain pdf file can only be opened once in xpdf.
+##
+## Usage: pv file.pdf
+
+server_name=$(realpath "${1}")
+server_pid=$(pgrep -f "/usr/local/bin/xpdf -remote ${server_name}")
+
+if [ -n "${server_pid}" ]; then
+    exec /usr/local/bin/xpdf -remote "${server_name}" -reload -raise
+else
+    exec /usr/local/bin/xpdf -remote "${server_name}" "${server_name}"
+fi
