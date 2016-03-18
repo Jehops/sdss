@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# t2e: Send text to the Emacs kill ring.
+# c2e: Copy text to the Emacs kill ring.
 #
 # With no arguments, send the contents of the X clipboard to the Emacs kill ring.
 # With -r, first set the clipboard to the contents read from standard input.
