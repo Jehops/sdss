@@ -12,15 +12,12 @@ NAME
 SYNOPSIS
    ${0##*/} TTL pool/filesystem ...
    ${0##*/} -d
-   ${0##*/} -p
 
 DESCRIPTION
    Create snapshots of ZFS filesystems with the specified time to live
    (TTL).  TTL is of the form [0-9]{1,3}[dwm].
 
    -d   Delete expired snapshots.
-
-   -p   Delete redundant snapshots.
 
 EXAMPLES
    Create snapshots that will last for 1 day, 3 weeks, or 6 months:
@@ -29,8 +26,6 @@ EXAMPLES
       $ ${0##*/} 6m zpool/filesystem1 zpool/filesystem2
    Delete snapshots past expiration:
       $ ${0##*/} -d
-   Delete redundant snapshots:
-      $ ${0##*/} -p
 
 VERSION
    ${0##*/} version ${version}
@@ -82,34 +77,12 @@ delete () {
     done
 }
 
-prune () {
-    i=1;
-    snaps=$(zfs list -H -t snap -o name | sort)
-    for snap1 in $snaps; do
-        i=$(($i+1))
-        if format "${snap1}"; then
-            ds=$(echo $snap1 | cut -f 1 -d @)
-            ttl=$(echo $snap1 | awk -F '--' '{$0=$2}1')
-            snap2=$(echo $snaps | tr ' ' '\n' | tail +${i} | \
-                        grep -e "$ds.*--$ttl" -m1)
-            if [ ! -z "$snap2" ] && \
-                   [ -z "$(timeout 5 zfs diff $snap1 $snap2 2>&1 | head -n1)" ]
-            then
-                echo "Destroying $snap1..."
-                zfs destroy $snap1
-            fi
-        fi
-    done
-}
-
 ############################################################
 
 if echo "$1" | egrep -q -e "^[0-9]{1,3}[dwm]$" && [ $# -gt 1 ]; then
     create $*
 elif [ "$1" = '-d' ]; then
     delete
-elif [ "$1" = '-p' ]; then
-    prune
 else
     help
 fi
