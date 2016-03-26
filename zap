@@ -12,12 +12,15 @@ NAME
 SYNOPSIS
    ${0##*/} TTL pool/filesystem ...
    ${0##*/} -d
+   ${0##*/} -p
 
 DESCRIPTION
    Create snapshots of ZFS filesystems with the specified time to live
    (TTL).  TTL is of the form [0-9]{1,3}[dwm].
 
-   -d   Delete redundant and expired snapshots.
+   -d   Delete expired snapshots.
+
+   -p   Delete redundant snapshots.
 
 EXAMPLES
    Create snapshots that will last for 1 day, 3 weeks, or 6 months:
@@ -26,6 +29,8 @@ EXAMPLES
       $ ${0##*/} 6m zpool/filesystem1 zpool/filesystem2
    Delete snapshots past expiration:
       $ ${0##*/} -d
+   Delete redundant snapshots:
+      $ ${0##*/} -p
 
 VERSION
    ${0##*/} version ${version}
@@ -34,30 +39,66 @@ EOF
     exit 0
 }
 
-ttl2s() {
+ttl2s () {
     # convert string TTL like 2d, 3w, and 6m to seconds
     echo "$1" | sed -e 's/d/*86400/; s/w/*604800/; s/m/*2592000/' | bc
+}
+
+format () {
+    echo "$1" | egrep -q -e "^.+@[0-9]{4}-[0-9]{2}-[0-9]{2}_[0-9]{2}\.[0-9]{2}\.[0-9]{2}--[0-9]{1,3}[dwm]$"
 }
 
 create () {
     ttl="$1"
     shift
+    p=$*
     date=$(date "+%Y-%m-%d_%H.%M.%S")
-    for i in $*; do
-	zfs snapshot "${i}@${date}--${ttl}"
+    for i in $p; do
+        # get the value of the name and written properties for the most recent
+        # snapshot created by this script and matching this dataset and ttl
+        r=$(zfs list -rHo name,written -t snap -S name $i | \
+                egrep -e "^.+@[0-9]{4}-[0-9]{2}-[0-9]{2}_[0-9]{2}\.[0-9]{2}\.[0-9]{2}--$ttl" \
+                      -m1)
+        set -- $r
+        if [ "$2" != "0" ]; then
+	    zfs snapshot "${i}@${date}--${ttl}"
+        else
+            zfs rename "$1" "${i}@${date}--${ttl}"
+        fi
     done
 }
 
 delete () {
     now_ts=$(date "+%s")
     for i in `zfs list -H -t snap -o name`; do
-	if echo "$i" | egrep -q -e "^.+@[0-9]{4}-[0-9]{2}-[0-9]{2}_[0-9]{2}\.[0-9]{2}\.[0-9]{2}--[0-9]{1,3}[dwm]$"; then
-	    create_time=$(echo "$i" | sed -E -e 's/.*@//' -e 's/--[0-9]{1,3}[dwm]$//')
+	if format $i; then
+	    create_time=$(echo "$i" | \
+                              sed -E -e 's/.*@//' -e 's/--[0-9]{1,3}[dwm]$//')
 	    create_ts=$(date -j -f "%Y-%m-%d_%H.%M.%S" "${create_time}" "+%s")
 	    ttl=$(echo $i | egrep -o -e "[0-9]{1,3}[dwm]$")
 	    expire_ts=$((${create_ts} + `ttl2s $ttl`))
 	    [ ${now_ts} -gt ${expire_ts} ] && zfs destroy $i
 	fi
+    done
+}
+
+prune () {
+    i=1;
+    snaps=$(zfs list -H -t snap -o name | sort)
+    for snap1 in $snaps; do
+        i=$(($i+1))
+        if format "${snap1}"; then
+            ds=$(echo $snap1 | cut -f 1 -d @)
+            ttl=$(echo $snap1 | awk -F '--' '{$0=$2}1')
+            snap2=$(echo $snaps | tr ' ' '\n' | tail +${i} | \
+                        grep -e "$ds.*--$ttl" -m1)
+            if [ ! -z "$snap2" ] && \
+                   [ -z "$(timeout 5 zfs diff $snap1 $snap2 2>&1 | head -n1)" ]
+            then
+                echo "Destroying $snap1..."
+                zfs destroy $snap1
+            fi
+        fi
     done
 }
 
@@ -67,6 +108,8 @@ if echo "$1" | egrep -q -e "^[0-9]{1,3}[dwm]$" && [ $# -gt 1 ]; then
     create $*
 elif [ "$1" = '-d' ]; then
     delete
+elif [ "$1" = '-p' ]; then
+    prune
 else
     help
 fi
