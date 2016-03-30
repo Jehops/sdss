@@ -57,12 +57,12 @@ safe () {
 
 ss_ts () {
     case $os in
-    'FreeBSD')
-        date -j -f'%Y-%m-%dT%H:%M:%S%z' $1 +%s
-        ;;
-    'Linux')
-        date --date=$1 +%s
-        ;;
+        'Darwin'|'FreeBSD')
+            date -j -f'%Y-%m-%dT%H:%M:%S%z' "$1" +%s
+            ;;
+        'Linux')
+            date --date=$1 +%s
+            ;;
     esac
 }
 
@@ -123,10 +123,8 @@ zptn='@ZAP_.+--[0-9]{1,4}[dwmy]'
 
 os=$(uname)
 case $os in
-    'FreeBSD')
-        ;;
-    'Linux')
-        ;;
+    'Darwin'|'FreeBSD'|'Linux')
+    ;;
     *)
         fatal "${0##*/} has not be tested on $os.
        Feedback and patches are welcome."
