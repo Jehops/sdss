@@ -21,15 +21,16 @@ SYNOPSIS
 
 DESCRIPTION
    Create snapshots of ZFS filesystems with the specified time to live
-   (TTL).  TTL is of the form [0-9]{1,3}[dwm].
+   (TTL).  TTL is of the form [0-9]{1,4}[dwmy].
 
    -d   Delete expired snapshots.
 
 EXAMPLES
-   Create snapshots that will last for 1 day, 3 weeks, or 6 months:
+   Create snapshots that will last for 1 day, 3 weeks, 6 months, and 1 year:
       $ ${0##*/} 1d zroot/ROOT/default
       $ ${0##*/} 3w tank/backup1 zroot/usr/home
       $ ${0##*/} 6m zpool/filesystem1 zpool/filesystem2
+      $ ${0##*/} 1y tank/backup
    Delete snapshots past expiration:
       $ ${0##*/} -d
 
@@ -43,6 +44,8 @@ EOF
 ttl2s () {
     # convert string TTL like 2d, 3w, and 6m to seconds
     echo "$1" | sed -e 's/d/*86400/; s/w/*604800/; s/m/*2592000/' | bc
+    # convert TTL string like 2d, 3w, 6m, or 1y to seconds
+    echo $1 | sed 's/d/*86400/;s/w/*604800/;s/m/*2592000/;s/y/*31536000/' | bc
 }
 
 format () {
