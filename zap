@@ -8,8 +8,8 @@
 #
 # Key features:
 #
+# - written in POSIX sh
 # - no configuration (uses ISO 8601 timestamps in the snapshot names)
-# - written in only POSIX sh
 # - uses "namespaces" to avoid collisions with other snapshots
 # - only creates snapshots when it makes sense to [1,2]
 #
