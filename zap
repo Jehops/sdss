@@ -27,8 +27,8 @@ DESCRIPTION
 EXAMPLES
    Create snapshots that will last for 1 day, 3 weeks, 6 months, and 1 year:
       $ ${0##*/} 1d zroot/ROOT/default
-      $ ${0##*/} 3w tank/backup1 zroot/usr/home
-      $ ${0##*/} 6m zpool/filesystem1 zpool/filesystem2
+      $ ${0##*/} 3w tank/backup zroot/usr/home/nox
+      $ ${0##*/} 6m zroot/usr/home/jrm zroot/usr/home/mem
       $ ${0##*/} 1y tank/backup
    Delete snapshots past expiration:
       $ ${0##*/} -d
