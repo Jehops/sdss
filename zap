@@ -1,6 +1,32 @@
 #!/bin/sh
 
-#===============================================================================
+# Manage Zfs snAPshots with zap.
+#
+# Run zap without arguments or visit the GitHub page for an overview.
+#
+# https://github.com/Jehops/zap
+#
+# Key features:
+#
+# - no configuration (uses ISO 8601 timestamps in the snapshot names)
+# - written in only POSIX sh
+# - uses "namespaces" to avoid collisions with other snapshots
+# - only creates snapshots when it makes sense to [1,2]
+#
+# [1] New snapshots are only created when the filesystem has changed since the
+# last snapshot.  If the filesystem hasn't changed, then the timestamp of the
+# newest snapshot is updated.
+#
+# [2] If the pool is being scrubbed or reslivered, or the pool is in a degraded
+# state, zap will not create or delete snapshots.
+#
+# This program was heavily influenced by zfSnap, which is under a BEER-WARE
+# license.  We owe the author a beer.
+#
+# ===============================================================================
+# This script was written by Joseph Mingrone <jrm@ftfl.ca>.  Do whatever you
+# like with it, but please retain this notice.
+# ===============================================================================
 
 fatal () {
     echo "FATAL: $*" > /dev/stderr
@@ -75,7 +101,7 @@ warn () {
     echo "WARN: $*" > /dev/stderr
 }
 
-#===============================================================================
+# ===============================================================================
 
 create () {
     ttl="$1"
@@ -116,7 +142,7 @@ delete () {
     done
 }
 
-#===============================================================================
+# ===============================================================================
 
 # egrep pattern matching zap snapshot names
 zptn='@ZAP_.+--[0-9]{1,4}[dwmy]'
