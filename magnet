@@ -10,10 +10,11 @@
 
 watchfolder="$HOME/.rtorrent/"
 
-hash=$(printf '%s\n' "$1" | sed 's/xt=urn:btih://')
-[ "$hash" ] || exit;
-cd "${watchfolder}" || exit;
-printf '%s\n' "d10:magnet-uri${#1}:${1}e" > "meta-${hash}.torrent"
+hash=$(printf '%s\n' ${1} | sed 's/xt=urn:btih://')
+[ $hash ] || exit;
+fn=$(printf '%s\n' ${1} | sed 's/[^&]*&dn=\([^&]*\).*/\1/')
+cd ${watchfolder}
+printf '%s\n' "d10:magnet-uri${#1}:${1}e" > "meta-${fn}.torrent"
 
 pgrep -q tmux     || tmux new -d
 pgrep -q rtorrent || tmux new-window rtorrent
