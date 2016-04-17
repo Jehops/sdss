@@ -1,29 +1,29 @@
 #!/bin/sh
 
-MAILDIRS="${HOME}/mail"
-TIMESTAMP="/tmp/getmail.timestamp.$$.${USER}"
+MAILDIRS="$HOME/mail"
+TIMESTAMP="/tmp/getmail.timestamp.$$.$USER"
 
-if [ -f "${TIMESTAMP}" ]; then
-  printf "Error: timestamp file ${TIMESTAMP} already exists\n"
+if [ -f "$TIMESTAMP" ]; then
+  echo "Error: timestamp file $TIMESTAMP already exists"
   exit 100
 fi
 
-touch "${TIMESTAMP}" || exit 101
+touch "$TIMESTAMP" || exit 101
 
-/usr/local/bin/getmail -q -r${HOME}/.getmail/getmailrc
+/usr/local/bin/getmail -q -r"$HOME"/.getmail/getmailrc
 ret=$?
-now=`date`
-printf "${now}: ${ret}\n"
+now=$(date)
+echo "$now: $ret"
 
 new=$(
     for maildir in $MAILDIRS; do 
-	find "${maildir}/new" -type f -newer "${TIMESTAMP}"
+	find "$maildir/new" -type f -newer "$TIMESTAMP"
     done | wc -l)
 
-rm -f "${TIMESTAMP}"
+rm -f "$TIMESTAMP"
 
-if [ "${new}" -gt 0 ]; then
-  printf "$now: Got ${new} new messages.\n";
+if [ "$new" -gt 0 ]; then
+  echo "$now: Got $new new messages.";
   exit 0
 fi
 

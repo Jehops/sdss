@@ -4,11 +4,11 @@
 ##
 ## Usage: pv file.pdf
 
-server_name=$(realpath "${1}")
-server_pid=$(pgrep -f "/usr/local/bin/xpdf -remote ${server_name}")
+server_name=$(realpath "$1")
+server_pid=$(pgrep -f "/usr/local/bin/xpdf -remote $server_name")
 
-if [ -n "${server_pid}" ]; then
-    exec /usr/local/bin/xpdf -remote "${server_name}" -reload -raise
+if [ -n "$server_pid" ]; then
+    exec /usr/local/bin/xpdf -remote "$server_name" -reload -raise
 else
-    exec /usr/local/bin/xpdf -remote "${server_name}" "${server_name}"
+    exec /usr/local/bin/xpdf -remote "$server_name" "$server_name"
 fi

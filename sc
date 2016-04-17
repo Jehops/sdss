@@ -18,4 +18,4 @@ ffmpeg -video_size 1366x768 \
        -acodec pcm_s16le \
        -af aresample=async=1:first_pts=0 \
        -y \
-       "${1}".mkv
+       "$1".mkv
