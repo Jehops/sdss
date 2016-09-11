@@ -1,18 +1,7 @@
 #!/bin/sh
 
-fqdn=$(hostname)
-fqdn_e=$(echo "$fqdn" | sed 's|\.|\\.|g')
-hostname=$(hostname -s)
-ip_file="/tmp/.ip"
-ip_regex="\b((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}\
-(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b"
-remote_host="gly"
+# Display external IP address
+
 ip=$(host myip.opendns.com resolver1.opendns.com | \
          awk '/^myip.opendns.com has address / {print $4}')
-last_known_ip=$(egrep "$ip_regex" "$ip_file" 2>/dev/null)
-
-if echo "$ip" | egrep -q "$ip_regex" && [ "${ip}" != "${last_known_ip}" ]; then
-    echo "${ip}" > ${ip_file}
-    ssh ${remote_host} "sudo sed -i '' 's/.*$fqdn_e/$ip		\
-$hostname $fqdn/' /etc/hosts"
-fi
+echo "${ip}"
