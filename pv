@@ -1,14 +1,22 @@
 #!/bin/sh
 
-## Ensure that a certain pdf file can only be opened once in xpdf.
+## Ensure that a certain pdf file can only be opened once in the PDF viewer.
+## I was using xpdf, but am now using mupdf.
 ##
 ## Usage: pv file.pdf
 
-server_name=$(realpath "$1")
-server_pid=$(pgrep -f "/usr/local/bin/xpdf -remote $server_name")
+## If mupdf set the X property _NET_WM_PID, could use
+## echo "stumpwm::(show-window $pid)" | stumpish -e eval to uniquely identify
+## a running mupdf.
 
-if [ -n "$server_pid" ]; then
-    exec /usr/local/bin/xpdf -remote "$server_name" -reload -raise
+name=$(realpath "$1")
+pid=$(pgrep -f "/usr/local/bin/mupdf $name")
+
+if [ -n "$pid" ]; then
+    kill -1 "$pid"
+    ##echo "stumpwm::(show-window $pid)" | stumpish -e eval
+    echo "stumpwm::(show-window-with-name \"^${name##*/}*\")" \
+        | stumpish -e eval > /dev/null 2>&1
 else
-    exec /usr/local/bin/xpdf -remote "$server_name" "$server_name"
+    exec /usr/local/bin/mupdf "$name"
 fi
