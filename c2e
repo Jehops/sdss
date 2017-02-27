@@ -1,18 +1,30 @@
 #!/bin/sh
 
-# c2e: Copy text to the Emacs kill ring.
-#
-# With no arguments, send the contents of the X clipboard to the Emacs kill ring.
-# With -r, first set the clipboard to the contents read from standard input.
-# With -s, instead send X primary selection to the Emacs kill ring.
+# With -r, send the contents read from standard input first to the X clipboard,
+# then to the Emacs kill ring if an Emacs daemon is running as the current user.
 
-if [ "${1}" = '-r' ]; then
-    exec xclip -sel clip -i -f | \
-        emacsclient -e "(kill-new \"$(sed 's/[\"]/\\&/g')\")"
-elif [ "${1}" = '-s' ]; then
-    exec xclip -o | \
-        emacsclient -e "(kill-new \"$(sed 's/[\"]/\\&/g')\")"
+# With -s, send the X primary selection contents to the X clipboard and the
+# Emacs kill ring if an Emacs daemon is running as the current user.
+
+# With no arguments, send the contents of the X clipboard to the Emacs kill ring
+# if an Emacs daemon is running as the current user.
+
+id=$(id -u)
+
+if pgrep -q -u "$id" -f 'emacs --daemon'; then
+    if [ "${1}" = '-r' ]; then
+        exec xclip -sel clip -i -f | \
+            emacsclient -e "(kill-new \"$(sed 's/[\"]/\\&/g')\")"
+    elif [ "${1}" = '-s' ]; then
+        exec xclip -o | \
+            xclip -sel clip -i -f | \
+            emacsclient -e "(kill-new \"$(sed 's/[\"]/\\&/g')\")"
+    else
+        exec xclip -sel clip -o | \
+            emacsclient -e "(kill-new \"$(sed 's/[\"]/\\&/g')\")"
+    fi
 else
-    exec xclip -sel clip -o | \
-        emacsclient -e "(kill-new \"$(sed 's/[\"]/\\&/g')\")"
+    if [ "${1}" = '-r' ]; then
+        exec xclip -sel clip -i -f
+    fi
 fi
