@@ -1,0 +1,13 @@
+#!/bin/sh
+
+# Load my usual tmux session
+
+tmux neww\; send -t :2 "ssh gly" KPEnter "ta" KPEnter
+tmux neww\; send -t :3 "ssh awarnach" KPEnter "ta" KPEnter
+tmux neww\; send -t :4 "ssh storage2" KPEnter "ta" KPEnter
+tmux neww\; send -t :5 "ssh ala" KPEnter "ta" KPEnter
+tmux neww\; send -t :6 "ssh bravo" KPEnter "ta" KPEnter
+tmux neww\; send -t :7 "ssh freefall" KPEnter "ta" KPEnter
+tmux neww\; send "scli" KPEnter
+sleep 1
+tmux renamew -t :8 "scli"
