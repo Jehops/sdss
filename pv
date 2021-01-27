@@ -1,5 +1,7 @@
 #!/bin/sh
 
+## This is now deprecated.  Use xdg-open.
+
 ## Ensure that a certain pdf file can only be opened once in the PDF viewer.
 ## I was using xpdf, but am now using mupdf.
 ##
