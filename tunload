@@ -11,7 +11,6 @@ done
 tmux send -t :8 -l ":q"
 tmux send -t :8 KPEnter
 
-sleep 1
 
 for i in $(seq 2 7)
 do
