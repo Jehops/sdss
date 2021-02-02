@@ -21,8 +21,6 @@ done
 
 sleep 1
 
-for i in $(seq 2 8)
-do
-  tmux send -t ":$i" -l "exit"
-  tmux send -t ":$i" KPEnter
+for i in $(seq 2 8); do
+  tmux kill-window -t ":$i"
 done
