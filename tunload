@@ -8,12 +8,11 @@ for h in $hosts; do
   ssh "$h" 'tmux detach'
 done
 
+# close scli
 tmux send -t :8 -l ":q"
 tmux send -t :8 KPEnter
 
-
-for i in $(seq 2 7)
-do
+for i in $(seq 2 7); do
   tmux send -t ":$i" -l "exit"
   tmux send -t ":$i" KPEnter
 done
