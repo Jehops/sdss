@@ -2,6 +2,10 @@
 
 # Load my usual tmux session
 
+if ! ssh-add -l | grep -q 'yoEOEisOxm1pe4bZgLSDsGUJyzEnt9/L8qTwlK3PrQ0'; then
+  ssh-add ~/.ssh/freebsd_rsa
+fi
+
 tmux neww\; send -t :2 "ssh gly" KPEnter "ta" KPEnter
 tmux neww\; send -t :3 "ssh awarnach" KPEnter "ta" KPEnter
 tmux neww\; send -t :4 "ssh storage2" KPEnter "ta" KPEnter
