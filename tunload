@@ -2,11 +2,12 @@
 
 # Unload my usual tmux session
 
-for i in $(seq 2 7)
-do
-  tmux send -t ":$i" -l "tmux detach"
-  tmux send -t ":$i" KPEnter
+hosts="ala awarnach bravo freefall gly storage2"
+
+for h in $hosts; do
+  ssh "$h" 'tmux detach'
 done
+
 tmux send -t :8 -l ":q"
 tmux send -t :8 KPEnter
 
