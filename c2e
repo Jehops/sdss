@@ -21,7 +21,8 @@ if pgrep -q -u "$id" -f 'emacs --daemon'; then
             emacsclient -e "(kill-new \"$(sed 's/[\"]/\\&/g')\")"
     else
         exec xclip -sel clip -o | \
-            emacsclient -e "(kill-new \"$(sed 's/[\"]/\\&/g')\")"
+                        emacsclient -e "(let ((interprogram-cut-function nil))
+(kill-new \"$(sed 's/[\"]/\\&/g')\"))"
     fi
 else
     if [ "${1}" = '-r' ]; then
