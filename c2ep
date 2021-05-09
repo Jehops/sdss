@@ -1,0 +1,5 @@
+#!/bin/sh
+
+while clipnotify; do
+  c2e
+done
