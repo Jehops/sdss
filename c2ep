@@ -1,5 +1,0 @@
-#!/bin/sh
-
-while clipnotify; do
-  emacsclient -n -e "(jrm/x-clipboard-to-kill-ring)"
-done
