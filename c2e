@@ -4,6 +4,6 @@ id=$(id -u)
 
 while clipnotify; do
   if pgrep -q -u "$id" -f 'emacs --daemon'; then
-    emacsclient -n -e "(jrm/x-clipboard-to-kill-ring)"
+    emacsclient -n -e "(current-kill 0)"
   fi
 done
