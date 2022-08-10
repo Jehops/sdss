@@ -6,4 +6,9 @@ while clipnotify; do
   if pgrep -q -u "$id" -f 'emacs --daemon'; then
     emacsclient -n -e "(current-kill 0)"
   fi
+
+  if [ -n "$(tmux list-sessions -F '#{session_name}' -f '#{session_attached}')" ]; then
+    xclip -sel clip -o | tmux loadb -
+  fi
+
 done
