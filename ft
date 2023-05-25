@@ -1,0 +1,14 @@
+#!/bin/sh
+
+# Print times for the timezones listed in ${HOME}/.ft
+
+if [ -z "$1" ]; then
+  id="$(date +%s)"
+else
+  id="$(date -j -f'%Y-%m-%d %H:%M' "$1" +%s)"
+fi
+
+while read -r tz; do
+  printf "%13s " "$(echo $tz | cut -d'/' -f2 -s | tr '_' ' ')"
+  TZ="$tz" date -j -f'%s' "$id" +'%Y-%m-%d %H:%M'
+done < "${HOME}/.ft"
