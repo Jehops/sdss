@@ -3,12 +3,24 @@
 # Print times for the timezones listed in ${HOME}/.ft
 
 if [ -z "$1" ]; then
-  id="$(date +%s)"
+        id="$(date +%s)"
 else
-  id="$(date -j -f'%Y-%m-%d %H:%M' "$1" +%s)"
+        case "$1" in
+                *-*)
+                        id="$(date -j -f'%Y-%m-%d %H:%M' "$1" +%s)"
+                        ;;
+                *)
+                        today=$(date '+%Y-%m-%d')
+                        id="$(date -j -f'%Y-%m-%d %H:%M' "$today $1" +%s)"
+                        ;;
+        esac
 fi
 
 while read -r tz; do
-  printf "%13s " "$(echo $tz | cut -d'/' -f2 -s | tr '_' ' ')"
-  TZ="$tz" date -j -f'%s' "$id" +'%Y-%m-%d %H:%M'
+        if [ "$tz" = "UTC" ]; then
+                printf "%13s " "UTC"
+        else
+                printf "%13s " "$(echo $tz | cut -d'/' -f2 -s | tr '_' ' ')"
+        fi
+        TZ="$tz" date -j -f'%s' "$id" +'(%z) %Y-%m-%d %H:%M'
 done < "${HOME}/.ft"
