@@ -2,7 +2,7 @@
 
 id=$(id -u)
 
-while clipnotify; do
+while clipnotify -s clipboard; do
   if pgrep -q -u "$id" -f 'emacs --daemon'; then
     emacsclient -n -e "(current-kill 0)"
   fi
