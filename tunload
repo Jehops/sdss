@@ -2,23 +2,30 @@
 
 # Unload my usual tmux session
 
-hosts="ala awarnach bravo freefall gly storage2"
+hosts="ala ser met freefall.freebsd.org"
+#scli_num=5
 
+i=2
 for h in $hosts; do
-  ssh "$h" 'tmux detach'
+  echo $h
+  if ping -c1 -W100 "$h" >/dev/null; then
+    ssh "$h" 'tmux detach'
+  fi
+  i=$((i+1))
 done
 
 # close scli
-tmux send -t :8 -l ":q"
-tmux send -t :8 KPEnter
+#tmux send -t ":$i" -l ":q"
+#tmux send -t ":$i"  KPEnter
 
-for i in $(seq 2 7); do
-  tmux send -t ":$i" -l "exit"
-  tmux send -t ":$i" KPEnter
+
+for j in $(seq 2 $((i-1))); do
+  tmux send -t ":$j" -l "exit"
+  tmux send -t ":$j" KPEnter
 done
 
 sleep 1
 
-for i in $(seq 2 8); do
-  tmux kill-window -t ":$i"
+for j in $(seq 2 $((i-1))); do
+  tmux kill-window -t ":$j"
 done
